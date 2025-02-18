@@ -20,13 +20,28 @@ export type CliEntrypointAction = {
     }
 }
 
+--[[
+#[derive(serde::Serialize, serde::Deserialize)]
+pub struct Colorize {
+    fg_color: Option<String>,
+    bg_color: Option<String>,
+    bold: Option<bool>,
+    dimmed: Option<bool>,
+}
+]]--
+
+export type Colorize = {
+    fg_color: string?,
+    bg_color: string?,
+    bold: boolean?,
+    dimmed: boolean?,
+}
+
 export type CliExtensionsTable = {
     exp: {
         [string]: (...any) -> any
     },
     ext: {
-        --- Deprecated
-        format_value: (...any) -> string | {number}, 
         --- Accepts input from the user on a separate thread (so other lua threads may still run even while waiting for input)
         --- @param prompt The prompt to display to the user
         --- @return A promise that resolves with the user's input
@@ -34,7 +49,14 @@ export type CliExtensionsTable = {
         --- Requests the CLI to change entrypoint to the provided entrypoint once the script returns
         ---
         --- Useful for plugins that want to provide the user with a REPL after setting up the plugin in _G.
-        request_next_entrypoint: (CliEntrypointAction) -> ()
+        request_next_entrypoint: (CliEntrypointAction) -> (),
+        --- Color print to the console
+        ---
+        --- Data can either be a string or a Colorize object
+        --- If data is a string, it can be prefixed with fg: or bg: for foreground and background colors respectively
+        --- or can be "bold" or "dimmed" for bold and dimmed text respectively. More complex use cases should just 
+        --- use the Colorize object though
+        color_print: (data: string | Colorize, text: string) -> ()
     },
 }
 
